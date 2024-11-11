@@ -1,0 +1,23 @@
+name: location_picker_flutter
+description: "A location picker package that allows the use to pick a location and get the address via GPS, Map or Autocomplete Google Apis."
+version: 1.0.0
+repository: https://github.com/aravind-m-s
+
+environment:
+  sdk: ^3.5.3
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  geocoding: ^3.0.0
+  geolocator: ^13.0.1
+  google_maps_flutter: ^2.9.0
+  skeletonizer: ^1.4.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  
+flutter:
