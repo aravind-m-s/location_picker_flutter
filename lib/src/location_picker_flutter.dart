@@ -1,5 +1,5 @@
-import 'dart:convert';
-import 'dart:developer';
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -326,24 +326,28 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
                 ),
               ],
             )
-          : const CupertinoSearchTextField(),
+          : CupertinoSearchTextField(
+              onChanged: onChanged,
+            ),
     );
   }
 
   onChanged(String value) async {
     debouncer.run(
       () async {
-        final response = await ApiProvider.getAutocompletePlaces(
-          query: value,
-          key: widget.widget.googleMapsApiKey,
-          sessionToken: widget.sessionToken,
-        );
-        results.clear();
-        response.forEach((element) {
-          results.add(AutoCompleteResultModel.fromJson(element));
-        });
+        if (value.trim().length > 2) {
+          final response = await ApiProvider.getAutocompletePlaces(
+            query: value,
+            key: widget.widget.googleMapsApiKey,
+            sessionToken: widget.sessionToken,
+          );
+          results.clear();
+          response.forEach((element) {
+            results.add(AutoCompleteResultModel.fromJson(element));
+          });
 
-        setState(() {});
+          setState(() {});
+        }
       },
     );
   }
