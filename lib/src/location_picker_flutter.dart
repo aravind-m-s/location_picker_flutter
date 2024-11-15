@@ -248,6 +248,8 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
                           ? GestureDetector(
                               onTap: () {
                                 searchController.clear();
+                                results.clear();
+                                setState(() {});
                               },
                               child: const Icon(Icons.clear),
                             )
@@ -273,10 +275,11 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
                     onChanged: onChanged,
                   ),
                 ),
-                Container(
-                  height: 0.5,
-                  color: Colors.grey,
-                ),
+                if (results.isNotEmpty)
+                  Container(
+                    height: 0.5,
+                    color: Colors.grey,
+                  ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: const BoxDecoration(
@@ -326,8 +329,71 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
                 ),
               ],
             )
-          : CupertinoSearchTextField(
-              onChanged: onChanged,
+          : Column(
+              children: [
+                CupertinoSearchTextField(
+                  onChanged: onChanged,
+                  backgroundColor: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(24),
+                    topRight: const Radius.circular(24),
+                    bottomLeft: Radius.circular(results.isEmpty ? 24 : 0),
+                    bottomRight: Radius.circular(results.isEmpty ? 24 : 0),
+                  ),
+                ),
+                if (results.isNotEmpty)
+                  Container(
+                    height: 0.5,
+                    color: Colors.grey,
+                  ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
+                  ),
+                  width: MediaQuery.of(context).size.width > 500
+                      ? 500
+                      : MediaQuery.of(context).size.width - 32,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(
+                      results.length,
+                      (index) => GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTap: () async {
+                          final response = await ApiProvider.getPlaceDetails(
+                            placeId: results[index].placeId,
+                            key: widget.widget.googleMapsApiKey,
+                          );
+                          final details = placeDetailsModelFromJson(response);
+                          details.result.name = results[index].description;
+                          widget.onLocationPicked(details);
+                          results.clear();
+                          setState(() {});
+                          searchController.clear();
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            top: 8.0,
+                            bottom: index == results.length - 1 ? 16 : 8,
+                          ),
+                          child: Text(
+                            results[index].description,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
     );
   }
